@@ -137,6 +137,7 @@
     const el = document.getElementById(elId);
     if (!items || !items.length) {
       el.textContent = 'Unavailable right now.';
+      el.style.animationDuration = '';
       return;
     }
     const html = items.map(i => {
@@ -144,6 +145,10 @@
       return `<span class="ticker-item">${escapeHtml(i[textKey])} ${pill}</span>`;
     }).join('');
     el.innerHTML = html + html;
+    // Scale scroll speed to content volume so a thin feed (1-2 items) doesn't
+    // crawl at the same 60s pace as a full 12-item feed.
+    const seconds = Math.max(14, Math.min(60, items.length * 5));
+    el.style.animationDuration = seconds + 's';
   }
 
   // ---------- rss2json-backed feeds ----------
@@ -182,7 +187,7 @@
     loadRss('t-social', 'https://www.socialmediaexaminer.com/feed/');
     loadRss('t-tech', 'https://techcrunch.com/feed/');
     loadRss('t-animal', 'https://www.sciencedaily.com/rss/plants_animals.xml');
-    loadHnSearch('t-model', 'ChatGPT OR Claude OR Gemini OR GPT', 14);
+    loadRss('t-model', 'https://venturebeat.com/category/ai/feed/');
     loadRss('t-camera', 'https://petapixel.com/feed/');
   }
 
