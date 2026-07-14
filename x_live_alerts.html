@@ -58,6 +58,8 @@
   .row-animal  .ticker-label { background: #000; } .row-animal  { background: #2b1a0d; }
   .row-model   .ticker-label { background: #000; } .row-model   { background: #150d2b; }
   .row-camera  .ticker-label { background: #000; } .row-camera  { background: #1a1f26; }
+  .row-trenduk .ticker-label { background: #000; } .row-trenduk { background: #0d2b1a; }
+  .row-trendus .ticker-label { background: #000; } .row-trendus { background: #1a0d0d; }
 
   .row-music   .ticker-label { color: #c77dff; }
   .row-ai      .ticker-label { color: #4dd0ff; }
@@ -69,6 +71,8 @@
   .row-animal  .ticker-label { color: #ffb84d; }
   .row-model   .ticker-label { color: #a68bff; }
   .row-camera  .ticker-label { color: #8bb8d9; }
+  .row-trenduk .ticker-label { color: #4dffb8; }
+  .row-trendus .ticker-label { color: #ffab4d; }
 </style>
 </head>
 <body>
@@ -122,6 +126,16 @@
   <div class="ticker-row row-camera">
     <div class="ticker-label">Camera News</div>
     <div class="ticker-track"><div class="ticker-content" id="t-camera">Loading camera news&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-trenduk">
+    <div class="ticker-label">Trending UK</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-trenduk">Loading UK trends&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-trendus">
+    <div class="ticker-label">Trending USA</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-trendus">Loading US trends&hellip;</div></div>
   </div>
 
 </div>
@@ -221,6 +235,9 @@
     loadRss('t-animal', 'https://www.sciencedaily.com/rss/plants_animals.xml');
     loadRss('t-model', 'https://venturebeat.com/category/ai/feed/');
     loadRss('t-camera', 'https://petapixel.com/feed/');
+    // Google's own daily trending-searches RSS, by country — official free feed, not a scrape.
+    loadRss('t-trenduk', 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=GB');
+    loadRss('t-trendus', 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=US');
   }
 
   loadAll();
