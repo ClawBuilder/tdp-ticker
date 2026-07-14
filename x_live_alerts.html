@@ -235,9 +235,11 @@
     loadRss('t-animal', 'https://www.sciencedaily.com/rss/plants_animals.xml');
     loadRss('t-model', 'https://venturebeat.com/category/ai/feed/');
     loadRss('t-camera', 'https://petapixel.com/feed/');
-    // Google's own daily trending-searches RSS, by country — official free feed, not a scrape.
-    loadRss('t-trenduk', 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=GB');
-    loadRss('t-trendus', 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=US');
+    // Google's Trends RSS was discontinued and the JSON API is CORS-blocked from a browser,
+    // so this uses Reddit's public per-subreddit RSS feed as the closest free "what's being
+    // talked about" signal by country — r/unitedkingdom and r/news (US-leaning general news).
+    loadRss('t-trenduk', 'https://www.reddit.com/r/unitedkingdom/hot/.rss?limit=10');
+    loadRss('t-trendus', 'https://www.reddit.com/r/news/hot/.rss?limit=10');
   }
 
   loadAll();
