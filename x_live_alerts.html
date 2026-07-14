@@ -164,6 +164,30 @@
     }
   }
 
+  // ---------- Multi-source RSS mix (round-robin interleaved, source shown as a pill) ----------
+  async function loadMultiRss(elId, sources, limitPerFeed) {
+    try {
+      const results = await Promise.all(sources.map(async s => {
+        try {
+          const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(s.url));
+          const data = await res.json();
+          return (data.items || []).slice(0, limitPerFeed || 4).map(i => ({ title: i.title, source: s.name }));
+        } catch (e) {
+          return [];
+        }
+      }));
+      const merged = [];
+      const maxLen = Math.max(0, ...results.map(r => r.length));
+      for (let i = 0; i < maxLen; i++) {
+        for (const r of results) { if (r[i]) merged.push(r[i]); }
+      }
+      renderItems(elId, merged, 'title', item => item.source);
+    } catch (err) {
+      document.getElementById(elId).textContent = 'Unavailable right now.';
+      console.warn(elId, 'fetch failed', err);
+    }
+  }
+
   // ---------- HN Algolia-backed feeds (search query, sorted by recency) ----------
   async function loadHnSearch(elId, query, daysBack) {
     try {
@@ -182,8 +206,16 @@
     loadRss('t-music', 'https://dancingastronaut.com/feed/');
     loadHnSearch('t-ai', 'AI');
     loadRss('t-sports', 'http://feeds.bbci.co.uk/sport/rss.xml');
-    loadRss('t-uk', 'http://feeds.bbci.co.uk/news/rss.xml');
-    loadRss('t-usa', 'https://feeds.npr.org/1001/rss.xml');
+    loadMultiRss('t-uk', [
+      { name: 'BBC', url: 'http://feeds.bbci.co.uk/news/uk/rss.xml' },
+      { name: 'Guardian', url: 'https://www.theguardian.com/uk/rss' },
+      { name: 'Sky', url: 'https://feeds.skynews.com/feeds/rss/uk.xml' }
+    ], 4);
+    loadMultiRss('t-usa', [
+      { name: 'NPR', url: 'https://feeds.npr.org/1001/rss.xml' },
+      { name: 'Guardian', url: 'https://www.theguardian.com/us/rss' },
+      { name: 'ABC', url: 'https://abcnews.go.com/abcnews/topstories' }
+    ], 4);
     loadRss('t-social', 'https://www.socialmediaexaminer.com/feed/');
     loadRss('t-tech', 'https://techcrunch.com/feed/');
     loadRss('t-animal', 'https://www.sciencedaily.com/rss/plants_animals.xml');
