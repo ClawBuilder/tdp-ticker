@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TDP Now Playing Ticker</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+    font-family: "Avant Garde", "Century Gothic", "URW Gothic", Futura, sans-serif;
+  }
+
+  .ticker-bar {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #B0001C;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .ticker-label {
+    flex: 0 0 auto;
+    background: #000000;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 1.4vw;
+    padding: 0 1.4vw;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    z-index: 2;
+  }
+
+  .ticker-track {
+    flex: 1 1 auto;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .ticker-content {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.6vw;
+    letter-spacing: 0.02em;
+    animation: scroll-left 22s linear infinite;
+    padding-right: 4vw;
+  }
+
+  .ticker-content .dot {
+    color: #ffd7d7;
+    margin: 0 1.2vw;
+  }
+
+  @keyframes scroll-left {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+</style>
+</head>
+<body>
+  <div class="ticker-bar">
+    <div class="ticker-label">TDP</div>
+    <div class="ticker-track">
+      <div class="ticker-content" id="tickerContent">
+        Loading now playing&hellip;
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Set this to the raw URL of now-playing.txt once it's hosted alongside this page.
+  // e.g. "https://yourusername.github.io/tdp-ticker/now-playing.txt"
+  const NOW_PLAYING_URL = "now-playing.txt";
+  const POLL_INTERVAL_MS = 15000;
+
+  let lastText = null;
+
+  async function refreshTicker() {
+    try {
+      const res = await fetch(NOW_PLAYING_URL + "?t=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("fetch failed: " + res.status);
+      const text = (await res.text()).trim();
+      if (text && text !== lastText) {
+        lastText = text;
+        renderTicker(text);
+      }
+    } catch (err) {
+      // Leave the current ticker text running if the fetch fails — don't blank the screen mid-stream.
+      console.warn("TDP ticker: could not refresh now-playing.txt", err);
+    }
+  }
+
+  function renderTicker(text) {
+    const el = document.getElementById("tickerContent");
+    // Repeat the text a few times with separators so the loop reads smoothly at any bar width.
+    const segment = text + '<span class="dot">&bull;</span>';
+    el.innerHTML = segment.repeat(4);
+  }
+
+  refreshTicker();
+  setInterval(refreshTicker, POLL_INTERVAL_MS);
+</script>
+</body>
+</html>
