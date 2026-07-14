@@ -150,10 +150,20 @@
   function renderItems(elId, items, textKey, pillFn) {
     const el = document.getElementById(elId);
     if (!items || !items.length) {
-      el.textContent = 'Unavailable right now.';
-      el.style.animationDuration = '';
+      // Don't blow away a previously-good render just because one refresh
+      // came back empty (rate limit / transient blip) — leave it scrolling.
+      if (!el.dataset.sig) {
+        el.textContent = 'Unavailable right now.';
+        el.style.animationDuration = '';
+      }
       return;
     }
+    // Skip the re-render (and the animation restart it causes) if the
+    // content hasn't actually changed since last refresh — this is what
+    // was making every row visibly "snap back" to the start every 5 min.
+    const sig = items.map(i => i[textKey]).join('|');
+    if (el.dataset.sig === sig) return;
+    el.dataset.sig = sig;
     const html = items.map(i => {
       const pill = pillFn ? `<span class="pill">${escapeHtml(String(pillFn(i)))}</span>` : '';
       return `<span class="ticker-item">${escapeHtml(i[textKey])} ${pill}</span>`;
