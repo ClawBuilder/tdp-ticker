@@ -31,7 +31,7 @@
   .ticker-content {
     position: absolute; top: 0; left: 100%; height: 100%;
     display: flex; align-items: center; white-space: nowrap;
-    animation: scroll-left 60s linear infinite;
+    animation: scroll-left 90s linear infinite;
     font-size: 21px; font-weight: 500;
   }
   @keyframes scroll-left {
@@ -160,8 +160,8 @@
     }).join('');
     el.innerHTML = html + html;
     // Scale scroll speed to content volume so a thin feed (1-2 items) doesn't
-    // crawl at the same 60s pace as a full 12-item feed.
-    const seconds = Math.max(14, Math.min(60, items.length * 5));
+    // crawl at the same pace as a full 12-item feed. Slowed overall pace.
+    const seconds = Math.max(24, Math.min(100, items.length * 8));
     el.style.animationDuration = seconds + 's';
   }
 
