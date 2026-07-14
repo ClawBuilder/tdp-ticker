@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Music Trending Ticker</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: transparent; overflow: hidden;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .ticker-bar {
+    position: relative; width: 100%; height: 100%;
+    background: #1a0d2b; display: flex; align-items: center;
+    overflow: hidden; box-sizing: border-box;
+  }
+  .ticker-label {
+    flex: 0 0 auto; background: #000000; color: #c77dff;
+    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    font-size: 1.4vw; padding: 0 1.4vw; height: 100%;
+    display: flex; align-items: center; white-space: nowrap; z-index: 2;
+  }
+  .ticker-track { flex: 1 1 auto; position: relative; height: 100%; overflow: hidden; }
+  .ticker-content {
+    position: absolute; top: 0; left: 100%; height: 100%;
+    display: flex; align-items: center; white-space: nowrap;
+    color: #ffffff; font-weight: 600; font-size: 1.4vw;
+    animation: scroll-left 55s linear infinite;
+  }
+  .ticker-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 20px; border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .pill {
+    display: inline-block; padding: 1px 7px; border-radius: 10px;
+    font-size: 0.75vw; font-weight: 700; background: rgba(199,125,255,0.15); color: #c77dff;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+</style>
+</head>
+<body>
+  <div class="ticker-bar">
+    <div class="ticker-label">Music Trending</div>
+    <div class="ticker-track">
+      <div class="ticker-content" id="tickerContent">Loading music news&hellip;</div>
+    </div>
+  </div>
+
+<script>
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  async function loadMusicTrending() {
+    const el = document.getElementById('tickerContent');
+    try {
+      // Dancing Astronaut (dance/house/EDM news) via rss2json's free public endpoint — matches TDP's genre.
+      const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://dancingastronaut.com/feed/'));
+      const data = await res.json();
+      const items = (data.items || []).slice(0, 12);
+      if (!items.length) throw new Error('no items');
+      const html = items.map(i => `<span class="ticker-item">${escapeHtml(i.title)}</span>`).join('');
+      el.innerHTML = html + html;
+    } catch (err) {
+      el.textContent = 'Music trending stories unavailable right now.';
+      console.warn('Music trending fetch failed', err);
+    }
+  }
+
+  loadMusicTrending();
+  setInterval(loadMusicTrending, 5 * 60 * 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Trending Ticker</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: transparent; overflow: hidden;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .ticker-bar {
+    position: relative; width: 100%; height: 100%;
+    background: #0d1a2e; display: flex; align-items: center;
+    overflow: hidden; box-sizing: border-box;
+  }
+  .ticker-label {
+    flex: 0 0 auto; background: #000000; color: #4dd0ff;
+    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    font-size: 1.4vw; padding: 0 1.4vw; height: 100%;
+    display: flex; align-items: center; white-space: nowrap; z-index: 2;
+  }
+  .ticker-track { flex: 1 1 auto; position: relative; height: 100%; overflow: hidden; }
+  .ticker-content {
+    position: absolute; top: 0; left: 100%; height: 100%;
+    display: flex; align-items: center; white-space: nowrap;
+    color: #ffffff; font-weight: 600; font-size: 1.4vw;
+    animation: scroll-left 55s linear infinite;
+  }
+  .ticker-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 20px; border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .pill {
+    display: inline-block; padding: 1px 7px; border-radius: 10px;
+    font-size: 0.75vw; font-weight: 700; background: rgba(77,208,255,0.15); color: #4dd0ff;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+</style>
+</head>
+<body>
+  <div class="ticker-bar">
+    <div class="ticker-label">AI Trending</div>
+    <div class="ticker-track">
+      <div class="ticker-content" id="tickerContent">Loading AI stories&hellip;</div>
+    </div>
+  </div>
+
+<script>
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  async function loadAITrending() {
+    const el = document.getElementById('tickerContent');
+    try {
+      // HN Algolia search API — public, no auth, CORS-enabled. Sorted by points, last 3 days.
+      const since = Math.floor(Date.now() / 1000) - (3 * 24 * 60 * 60);
+      const res = await fetch(`https://hn.algolia.com/api/v1/search?query=AI&tags=story&numericFilters=created_at_i%3E${since}&hitsPerPage=15`);
+      const data = await res.json();
+      const hits = (data.hits || []).filter(h => h.title).slice(0, 12);
+      if (!hits.length) throw new Error('no hits');
+      const html = hits.map(h =>
+        `<span class="ticker-item">${escapeHtml(h.title)} <span class="pill">${h.points || 0}pts</span></span>`
+      ).join('');
+      el.innerHTML = html + html; // repeat once so the loop reads smoothly
+    } catch (err) {
+      el.textContent = 'AI trending stories unavailable right now.';
+      console.warn('AI trending fetch failed', err);
+    }
+  }
+
+  loadAITrending();
+  setInterval(loadAITrending, 5 * 60 * 1000);
+</script>
+</body>
+</html>
