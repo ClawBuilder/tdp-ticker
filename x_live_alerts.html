@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Live Ticker Wall — 10 Feeds</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: #0b0b0f; color: #f5f5f7;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+  #app { display: flex; flex-direction: column; width: 100%; height: 100%; }
+
+  .ticker-row {
+    height: 40px; flex: 0 0 40px;
+    display: flex; align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden; position: relative;
+  }
+  .ticker-label {
+    flex: 0 0 auto; height: 100%;
+    display: flex; align-items: center;
+    padding: 0 14px; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: #fff; white-space: nowrap; z-index: 2;
+  }
+  .ticker-track { flex: 1 1 auto; position: relative; height: 100%; overflow: hidden; }
+  .ticker-content {
+    position: absolute; top: 0; left: 100%; height: 100%;
+    display: flex; align-items: center; white-space: nowrap;
+    animation: scroll-left 60s linear infinite;
+    font-size: 14px; font-weight: 500;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+  .ticker-item {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0 22px; border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .pill {
+    display: inline-block; padding: 1px 7px; border-radius: 10px;
+    font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.12);
+  }
+
+  /* Per-row brand colours */
+  .row-music   .ticker-label { background: #000; } .row-music   { background: #1a0d2b; }
+  .row-ai      .ticker-label { background: #000; } .row-ai      { background: #0d1a2e; }
+  .row-sports  .ticker-label { background: #000; } .row-sports  { background: #0d2b14; }
+  .row-uk      .ticker-label { background: #000; } .row-uk      { background: #3d0d0d; }
+  .row-usa     .ticker-label { background: #000; } .row-usa     { background: #0d1a3d; }
+  .row-social  .ticker-label { background: #000; } .row-social  { background: #2b0d1f; }
+  .row-tech    .ticker-label { background: #000; } .row-tech    { background: #0d2b28; }
+  .row-animal  .ticker-label { background: #000; } .row-animal  { background: #2b1a0d; }
+  .row-model   .ticker-label { background: #000; } .row-model   { background: #150d2b; }
+  .row-camera  .ticker-label { background: #000; } .row-camera  { background: #1a1f26; }
+
+  .row-music   .ticker-label { color: #c77dff; }
+  .row-ai      .ticker-label { color: #4dd0ff; }
+  .row-sports  .ticker-label { color: #4dff88; }
+  .row-uk      .ticker-label { color: #ff6b6b; }
+  .row-usa     .ticker-label { color: #6b9bff; }
+  .row-social  .ticker-label { color: #ff6bcb; }
+  .row-tech    .ticker-label { color: #4dffdb; }
+  .row-animal  .ticker-label { color: #ffb84d; }
+  .row-model   .ticker-label { color: #a68bff; }
+  .row-camera  .ticker-label { color: #8bb8d9; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="ticker-row row-music">
+    <div class="ticker-label">Music</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-music">Loading music news&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-ai">
+    <div class="ticker-label">AI</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-ai">Loading AI stories&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-sports">
+    <div class="ticker-label">Sports</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-sports">Loading sports news&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-uk">
+    <div class="ticker-label">UK News</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-uk">Loading UK headlines&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-usa">
+    <div class="ticker-label">USA News</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-usa">Loading US headlines&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-social">
+    <div class="ticker-label">Social Media</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-social">Loading social media news&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-tech">
+    <div class="ticker-label">Tech News</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-tech">Loading tech news&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-animal">
+    <div class="ticker-label">Animal News</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-animal">Loading animal news&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-model">
+    <div class="ticker-label">AI Models</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-model">Loading AI model news&hellip;</div></div>
+  </div>
+
+  <div class="ticker-row row-camera">
+    <div class="ticker-label">Camera News</div>
+    <div class="ticker-track"><div class="ticker-content" id="t-camera">Loading camera news&hellip;</div></div>
+  </div>
+
+</div>
+
+<script>
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function renderItems(elId, items, textKey, pillFn) {
+    const el = document.getElementById(elId);
+    if (!items || !items.length) {
+      el.textContent = 'Unavailable right now.';
+      return;
+    }
+    const html = items.map(i => {
+      const pill = pillFn ? `<span class="pill">${escapeHtml(String(pillFn(i)))}</span>` : '';
+      return `<span class="ticker-item">${escapeHtml(i[textKey])} ${pill}</span>`;
+    }).join('');
+    el.innerHTML = html + html;
+  }
+
+  // ---------- rss2json-backed feeds ----------
+  async function loadRss(elId, feedUrl, limit) {
+    try {
+      const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl));
+      const data = await res.json();
+      const items = (data.items || []).slice(0, limit || 12);
+      renderItems(elId, items, 'title');
+    } catch (err) {
+      document.getElementById(elId).textContent = 'Unavailable right now.';
+      console.warn(elId, 'fetch failed', err);
+    }
+  }
+
+  // ---------- HN Algolia-backed feeds (search query, sorted by recency) ----------
+  async function loadHnSearch(elId, query, daysBack) {
+    try {
+      const since = Math.floor(Date.now() / 1000) - ((daysBack || 3) * 24 * 60 * 60);
+      const res = await fetch(`https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&tags=story&numericFilters=created_at_i%3E${since}&hitsPerPage=15`);
+      const data = await res.json();
+      const hits = (data.hits || []).filter(h => h.title).slice(0, 12);
+      renderItems(elId, hits, 'title', h => `${h.points || 0}pts`);
+    } catch (err) {
+      document.getElementById(elId).textContent = 'Unavailable right now.';
+      console.warn(elId, 'fetch failed', err);
+    }
+  }
+
+  function loadAll() {
+    loadRss('t-music', 'https://dancingastronaut.com/feed/');
+    loadHnSearch('t-ai', 'AI');
+    loadRss('t-sports', 'http://feeds.bbci.co.uk/sport/rss.xml');
+    loadRss('t-uk', 'http://feeds.bbci.co.uk/news/rss.xml');
+    loadRss('t-usa', 'https://feeds.npr.org/1001/rss.xml');
+    loadRss('t-social', 'https://www.socialmediatoday.com/rss.xml');
+    loadRss('t-tech', 'https://techcrunch.com/feed/');
+    loadRss('t-animal', 'https://www.sciencedaily.com/rss/plants_animals.xml');
+    loadHnSearch('t-model', 'ChatGPT OR Claude OR Gemini OR GPT', 5);
+    loadRss('t-camera', 'https://petapixel.com/feed/');
+  }
+
+  loadAll();
+  setInterval(loadAll, 5 * 60 * 1000);
+</script>
+</body>
+</html>
